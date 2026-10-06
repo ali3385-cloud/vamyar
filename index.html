@@ -1,0 +1,474 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>مدیریت‌گر وام شخصی</title>
+<style>
+:root{
+  --bg:#f5f7fb;--card:#fff;--text:#172033;--muted:#667085;--line:#e5e7eb;
+  --primary:#2563eb;--primary2:#1d4ed8;--green:#059669;--red:#dc2626;--orange:#d97706;
+  --shadow:0 8px 28px rgba(15,23,42,.07);--radius:18px
+}
+*{box-sizing:border-box} body{margin:0;font-family:Tahoma,"Segoe UI",sans-serif;background:var(--bg);color:var(--text)}
+button,input,select{font:inherit} button{cursor:pointer}
+.app{max-width:1400px;margin:auto;padding:20px}
+header{background:linear-gradient(135deg,#173b8f,#2563eb);color:#fff;border-radius:24px;padding:24px;box-shadow:var(--shadow);margin-bottom:18px}
+header h1{margin:0 0 8px;font-size:25px} header p{margin:0;opacity:.88;font-size:13px}
+nav{display:flex;gap:8px;flex-wrap:wrap;margin:14px 0}
+nav button{border:1px solid var(--line);background:#fff;color:#344054;padding:10px 15px;border-radius:12px}
+nav button.active{background:var(--primary);color:#fff;border-color:var(--primary)}
+.page{display:none}.page.active{display:block}
+.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:18px;box-shadow:var(--shadow)}
+.stat .label{color:var(--muted);font-size:12px}.stat .value{font-size:22px;font-weight:800;margin-top:9px}.stat .sub{font-size:11px;color:var(--muted);margin-top:5px}
+.section-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:18px 0 10px}
+.section-head h2{font-size:17px;margin:0}.actions{display:flex;gap:8px;flex-wrap:wrap}
+.btn{border:0;border-radius:11px;padding:10px 14px;background:#eef2ff;color:#1e40af}.btn.primary{background:var(--primary);color:#fff}.btn.green{background:#ecfdf5;color:#047857}.btn.red{background:#fef2f2;color:#b91c1c}.btn.gray{background:#f2f4f7;color:#344054}
+table{width:100%;border-collapse:collapse;font-size:12px} th,td{padding:11px 9px;border-bottom:1px solid var(--line);text-align:right;white-space:nowrap} th{background:#f8fafc;color:#475467;font-weight:700;position:sticky;top:0}
+.table-wrap{overflow:auto;max-height:580px;border:1px solid var(--line);border-radius:14px}
+.badge{display:inline-block;padding:5px 8px;border-radius:999px;font-size:10px}.badge.blue{background:#eff6ff;color:#1d4ed8}.badge.green{background:#ecfdf5;color:#047857}.badge.orange{background:#fff7ed;color:#c2410c}.badge.red{background:#fef2f2;color:#b91c1c}
+.formgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}.field label{display:block;font-size:11px;color:var(--muted);margin-bottom:6px}.field input,.field select{width:100%;border:1px solid #d0d5dd;border-radius:11px;padding:10px;background:#fff;outline:none}.field input:focus,.field select:focus{border-color:var(--primary);box-shadow:0 0 0 3px #dbeafe}
+.form-actions{margin-top:15px;display:flex;gap:8px;justify-content:flex-start}.hint{background:#fffbeb;border:1px solid #fde68a;padding:12px;border-radius:12px;font-size:11px;color:#92400e;margin-top:12px;line-height:1.8}
+.empty{padding:35px;text-align:center;color:var(--muted)}
+.loan-cards{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}.loan-card{background:#fff;border:1px solid var(--line);border-radius:16px;padding:16px}.loan-card h3{margin:0 0 7px;font-size:16px}.loan-meta{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:12px 0}.mini{background:#f8fafc;padding:9px;border-radius:10px}.mini b{display:block;font-size:13px;margin-top:4px}.mini span{font-size:10px;color:var(--muted)}
+.progress{height:8px;background:#edf2f7;border-radius:99px;overflow:hidden}.progress i{display:block;height:100%;background:var(--primary)}
+.modal{position:fixed;inset:0;background:rgba(15,23,42,.5);display:none;align-items:center;justify-content:center;padding:16px;z-index:20}.modal.show{display:flex}.modal-box{background:#fff;border-radius:20px;max-width:900px;width:100%;max-height:92vh;overflow:auto;padding:20px}
+.modal-head{display:flex;justify-content:space-between;align-items:center}.close{border:0;background:#f2f4f7;border-radius:50%;width:34px;height:34px}
+.chartbox{height:340px;position:relative}.chartbox canvas{width:100%;height:100%}
+.note{font-size:11px;color:var(--muted);line-height:1.8}.positive{color:var(--green)!important}.negative{color:var(--red)!important}
+.kpi-row{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}.kpi{padding:12px;border:1px solid var(--line);border-radius:12px}.kpi span{font-size:10px;color:var(--muted)}.kpi b{display:block;margin-top:4px}
+@media(max-width:900px){.grid{grid-template-columns:repeat(2,1fr)}.formgrid{grid-template-columns:1fr 1fr}.loan-cards{grid-template-columns:1fr}}
+@media(max-width:600px){.app{padding:10px}header{border-radius:16px;padding:18px}.grid{grid-template-columns:1fr 1fr;gap:8px}.stat{padding:12px}.stat .value{font-size:17px}.formgrid{grid-template-columns:1fr}.loan-cards{grid-template-columns:1fr} th,td{padding:9px 7px}.section-head{align-items:flex-start;flex-direction:column}}
+#tip{position:fixed;display:none;z-index:50;background:#172033;color:#fff;padding:8px 11px;border-radius:9px;font-size:11px;line-height:1.9;pointer-events:none;box-shadow:0 6px 20px rgba(0,0,0,.25);max-width:260px}
+.dash2{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;margin-top:14px}.dash2 h3,.card h3{margin:0 0 12px;font-size:14px}
+.hrow{display:flex;align-items:center;gap:10px;margin:9px 0;font-size:12px}.hrow .lb{width:120px;flex:none;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.hrow .tr{flex:1;height:16px;background:#f2f4f7;border-radius:8px;position:relative;overflow:hidden}.hrow .tr i{position:absolute;top:0;bottom:0;right:0;border-radius:8px}.hrow .vl{width:70px;flex:none;font-size:11px;color:#475467}
+.gantt{position:relative}.gantt .tl{position:absolute;top:0;bottom:0;width:2px;background:#dc2626;z-index:2}
+@media(max-width:900px){.dash2{grid-template-columns:1fr}}
+.tline{position:relative;padding-right:24px;max-height:230px;overflow:auto}.tline:before{content:"";position:absolute;right:8px;top:6px;bottom:6px;width:2px;background:#dbeafe}.titem{position:relative;margin:0 0 14px;font-size:12px}.titem:before{content:"";position:absolute;right:-22px;top:3px;width:10px;height:10px;border-radius:50%;background:var(--c);border:2px solid #fff;box-shadow:0 0 0 2px var(--c)}
+</style>
+</head>
+<body>
+<div id="tip"></div>
+<div class="app">
+<header>
+  <h1>مدیریت‌گر وام شخصی</h1>
+  <p>ثبت وام‌ها، برنامه اقساط، تحلیل بدهی، برآورد تسویه زودهنگام و مدیریت فشار اقساط ماهانه</p>
+</header>
+
+<nav id="nav">
+  <button class="active" data-page="dashboard">داشبورد</button>
+  <button data-page="loans">وام‌های من</button>
+  <button data-page="schedule">برنامه اقساط</button>
+  <button data-page="settlement">تسویه وام‌ها</button>
+  <button data-page="analysis">تحلیل ماهانه</button>
+  <button data-page="about">درباره</button>
+</nav>
+
+<section id="dashboard" class="page active">
+  <div class="grid" id="stats" style="grid-template-columns:repeat(3,1fr)"></div>
+  <div class="dash2">
+    <div class="card"><h3>سهم هر وام از جمع اقساط باقی‌مانده</h3><div style="display:flex;gap:18px;flex-wrap:wrap;align-items:center"><canvas id="pie1" style="width:220px;height:220px"></canvas><div id="leg1" style="flex:1;min-width:200px"></div></div></div>
+    <div class="card"><h3>سهم قسط ماهانه هر وام از کل اقساط ماهانه</h3><div style="display:flex;gap:18px;flex-wrap:wrap;align-items:center"><canvas id="pie2" style="width:220px;height:220px"></canvas><div id="leg2" style="flex:1;min-width:200px"></div></div></div>
+    <div class="card"><h3>مقایسه وام‌ها از نظر تاریخ اخذ <span class="note">(قدیمی‌ترین بالا)</span></h3><div id="cmpDate"></div></div>
+    <div class="card"><h3>مقایسه وام‌ها از نظر زمان اتمام اقساط <span class="note">(زودترین بالا)</span></h3><div id="cmpEnd"></div></div>
+    <div class="card"><h3>روند کاهش اقساط ماهانه</h3><canvas id="trendChart" style="width:100%;height:200px"></canvas></div>
+  </div>
+</section>
+
+<section id="loans" class="page">
+  <div class="section-head"><h2>وام‌های ثبت‌شده <span class="note">(از جدیدترین به قدیمی‌ترین)</span></h2><div class="actions"><button class="btn primary" onclick="openLoan()">＋ افزودن وام</button><button class="btn gray" onclick="exportData()">خروجی پشتیبان</button><button class="btn gray" onclick="document.getElementById('importFile').click()">ورود پشتیبان</button><input id="importFile" type="file" accept=".json" hidden onchange="importData(event)"></div></div>
+  <div id="loanList" class="loan-cards"></div>
+</section>
+
+<section id="schedule" class="page">
+  <div class="section-head"><h2>برنامه اقساط</h2><div class="actions"><select id="scheduleLoan" onchange="renderSchedule()"></select></div></div>
+  <div class="card"><div id="scheduleSummary"></div><div class="table-wrap" style="margin-top:12px"><table><thead><tr><th>قسط</th><th>سررسید</th><th>مبلغ قسط</th><th>اصل</th><th>سود/کارمزد</th><th>مانده اقساط</th><th>وضعیت</th></tr></thead><tbody id="scheduleTable"></tbody></table></div></div>
+</section>
+
+<section id="settlement" class="page">
+  <div class="section-head"><h2>تسویه کدام وام فشار اقساط را بیشتر کم می‌کند؟</h2></div>
+  <div class="card"><h3>کاهش قسط ماهانه به ازای هر یک میلیون تومان تسویه</h3><div id="settleChart"></div></div>
+  <div class="card" style="margin-top:14px">
+    <div id="settleSummary" class="kpi-row" style="margin-bottom:12px"></div>
+    <div class="table-wrap"><table><thead><tr><th>رتبه</th><th>وام</th><th>بانک</th><th>مبلغ لازم برای تسویه (مانده اقساط)</th><th>قسط ماهانه‌ای که حذف می‌شود</th><th>کاهش فشار ماهانه</th><th>اقساط باقی‌مانده</th><th>کاهش قسط ماهانه به ازای هر یک میلیون تسویه</th></tr></thead><tbody id="settlementTable"></tbody></table></div>
+  </div>
+  <div class="hint">مبلغ تسویه همان «مانده اقساط» وام است و رقم قطعی را بانک اعلام می‌کند. «جمع قسط ماهانه» مجموع قسط بعدی همه وام‌های فعال است. رتبه‌بندی بر اساس کاهش قسط ماهانه به ازای هر یک میلیون تومان تسویه است.</div>
+</section>
+
+<section id="analysis" class="page">
+  <div class="section-head"><h2>تحلیل جریان اقساط</h2></div>
+  <div class="grid" id="analysisStats" style="grid-template-columns:repeat(3,1fr)"></div>
+  <div class="card chartbox" style="margin-top:14px"><canvas id="analysisChart" style="cursor:pointer"></canvas></div>
+  <div class="note" style="margin-top:6px">برای دیدن مشخصات وام‌های هر ماه، روی میله همان ماه کلیک کنید.</div>
+  <div class="card" style="margin-top:14px" id="monthDetailCard"><div id="monthDetail"></div></div>
+  <div class="section-head"><h2 id="depHead">واریزهای این ماه</h2></div>
+  <div class="card"><div class="table-wrap"><table><thead><tr><th>بانک</th><th>حساب</th><th>جمع اقساط این ماه</th><th>پرداخت‌شده</th><th>باقی‌مانده برای واریز</th></tr></thead><tbody id="depositTable"></tbody></table></div></div>
+  <div class="section-head"><h2>جدول ماهانه</h2></div>
+  <div class="card"><div class="table-wrap"><table><thead><tr><th>ماه</th><th>اقساط این ماه (به تفکیک وام)</th><th>مجموع قسط</th><th>تعداد وام فعال</th><th>وضعیت</th></tr></thead><tbody id="analysisTable"></tbody></table></div></div>
+</section>
+
+<section id="about" class="page">
+  <div class="section-head"><h2>درباره برنامه و قواعد محاسبه</h2></div>
+  <div class="card" style="line-height:2.1;font-size:13px">
+   <h3>کلیات</h3>
+   <ul>
+    <li>اطلاعات وام‌ها فقط در همین مرورگر ذخیره می‌شود. برای نگهداری یا انتقال، از «خروجی پشتیبان» و «ورود پشتیبان» در صفحه وام‌های من استفاده کنید.</li>
+    <li>همه تاریخ‌ها شمسی هستند. اقساط هر ماه شمسی یک ماه بعد از قبلی سررسید می‌شوند؛ اگر آن روز در ماه مقصد نباشد (مثلاً ۳۱ در ماه‌های ۳۰ روزه)، آخرین روز همان ماه می‌آید.</li>
+    <li>مبلغ‌ها به تومان و گردشده هستند. ارقام این برنامه «برآورد» است و ممکن است با رقم قطعی بانک چند صد تومان فرق کند.</li>
+   </ul>
+   <h3>پرداخت خودکار اقساط</h3>
+   <ul>
+    <li><b>هر قسطی که تاریخش گذشته باشد پرداخت‌شده حساب می‌شود، حتی اگر در فرم تعداد کمتری وارد کرده باشید. این در همه صفحه‌ها اعمال می‌شود.</b></li>
+    <li>قسطی که امروز سررسید می‌شود تا پایان همان روز پرداخت‌نشده است.</li>
+    <li>«تعداد اقساط پرداخت‌شده» در فرم فقط وقتی اثر دارد که از تعداد اقساط گذشته بیشتر باشد (مثلاً قسط‌های پیش‌پرداخت‌شده).</li>
+   </ul>
+   <h3>انواع وام و فرمول‌ها</h3>
+   <ul>
+    <li><b>وام عادی:</b> قسط‌ها مساوی هستند. فرمول: قسط = P×r×(1+r)^n ÷ ((1+r)^n − 1) که P مبلغ کل وام، r نرخ ماهانه (نرخ سالانه ÷ ۱۲۰۰) و n تعداد اقساط است. اگر «مبلغ قسط واقعی» را وارد کنید، همان مبلغ استفاده می‌شود و آخرین قسط باقی‌مانده را تسویه می‌کند.</li>
+    <li><b>قرض‌الحسنه:</b> اولین قسط هر سال (قسط‌های ۱، ۱۳، ۲۵ و …) فقط کارمزد است و روی مانده وام همان زمان حساب می‌شود (مانده × درصد کارمزد). در سایر ماه‌ها فقط اصل وام پرداخت می‌شود و اصل وام مساوی بین این ماه‌ها تقسیم می‌شود. اگر «مبلغ قسط واقعی» وارد شود، همان قسط ماهانه (بدون کارمزد) است و آخرین قسط، باقی‌مانده را تسویه می‌کند.</li>
+    
+   </ul>
+   <h3>صفحه‌ها</h3>
+   <ul>
+    <li><b>داشبورد:</b> تعداد وام فعال، مجموع وام دریافتی و جمع اقساط باقی‌مانده را نشان می‌دهد. دو نمودار دایره‌ای سهم هر وام از اقساط باقی‌مانده و از قسط ماهانه را (از بزرگ به کوچک) نشان می‌دهند. دو تایم‌لاین وام‌ها را از نظر تاریخ اخذ (قدیمی‌ترین بالا) و زمان اتمام اقساط (زودترین بالا) مرتب می‌کنند و نمودار نقطه‌ای روند مجموع اقساط هر ماه را نشان می‌دهد. در این نمودار و در تحلیل ماهانه، ماه جاری شامل همه اقساط آن ماه است، چه پرداخت‌شده چه نشده. با نگه داشتن موس روی هر بخش، اطلاعات آن نمایش داده می‌شود.</li>
+    <li><b>وام‌های من:</b> وام‌ها از جدیدترین به قدیمی‌ترین نمایش داده می‌شوند. «جمع اقساط باقی‌مانده» مجموع اقساط پرداخت‌نشده و «درصد از کل بدهی» سهم آن وام از جمع اقساط باقی‌مانده همه وام‌هاست.</li>
+    <li><b>برنامه اقساط:</b> جدول کامل اقساط هر وام. «مانده اقساط» مجموع اقساطی است که بعد از همان قسط باقی می‌ماند.</li>
+    <li><b>تسویه وام‌ها:</b> «مبلغ لازم برای تسویه» همان مانده اقساط وام است (مجموع اقساط پرداخت‌نشده). «قسط ماهانه‌ای که حذف می‌شود» قسط بعدی آن وام است و «کاهش فشار ماهانه» سهم آن از جمع قسط بعدی همه وام‌های فعال. معیار رتبه‌بندی: قسط بعدی ÷ مبلغ تسویه × یک میلیون؛ یعنی با هر یک میلیون تومان تسویه چقدر از قسط ماهانه کم می‌شود. هرچه بالاتر باشد تسویه آن وام برای کم کردن فشار اقساط مؤثرتر است. تسویه یکجا و صرفه‌جویی ناشی از آن در این برنامه حساب نمی‌شود.</li>
+    <li><b>تحلیل ماهانه:</b> از ماه جاری به بعد، مجموع همه اقساط هر ماه را نشان می‌دهد؛ ماه جاری شامل اقساط پرداخت‌شده (با علامت ✓) هم هست. کارت «جمع اقساط باقی‌مانده» فقط اقساط پرداخت‌نشده را می‌شمارد و با داشبورد برابر است. با کلیک روی هر میله، جدول مشخصات وام‌های همان ماه و جدول «واریزهای آن ماه» (به تفکیک بانک و حساب، شامل جمع، پرداخت‌شده و باقی‌مانده برای واریز) نشان داده می‌شود.</li>
+   </ul>
+   <h3>نکته‌ها</h3>
+   <ul>
+    <li>برای دقیق‌تر شدن جدول واریزها، برای هر وام نام بانک و نوع حساب را وارد کنید.</li>
+    <li>اگر قسط واقعی بانک با برنامه فرق دارد (مثلاً وام‌هایی که تنفس یا شرایط خاص دارند)، «مبلغ قسط واقعی» را وارد کنید تا برنامه با همان مبلغ حساب کند. تاریخ شروع را طوری انتخاب کنید که اولین قسط یک ماه بعد از آن بیفتد.</li>
+   </ul>
+  </div>
+</section>
+</div>
+
+<div id="modal" class="modal">
+ <div class="modal-box">
+  <div class="modal-head"><h2 id="modalTitle">افزودن وام</h2><button class="close" onclick="closeLoan()">×</button></div>
+  <form id="loanForm">
+   <input type="hidden" id="editId">
+   <div class="formgrid" style="margin-top:15px">
+    <div class="field"><label>نام وام</label><input id="name" required placeholder="مثلاً وام ضروری"></div>
+    <div class="field"><label>نام بانک</label><input id="bank" placeholder="مثلاً ملی"></div>
+    <div class="field"><label>نوع حساب</label><input id="account" placeholder="مثلاً جاری / پس‌انداز / شماره حساب"></div>
+    <div class="field"><label>نوع وام</label><select id="type"><option value="ordinary">عادی</option><option value="qard">قرض‌الحسنه</option></select></div>
+    <div class="field"><label>مبلغ کل وام (تومان)</label><input id="principal" type="number" min="0" required></div>
+    <div class="field" id="rateField"><label>نرخ سود سالانه (%)</label><input id="rate" type="number" step="0.01" value="23"></div>
+    <div class="field"><label>مدت بازپرداخت (ماه / تعداد اقساط)</label><input id="term" type="number" min="1" value="36" required></div>
+    <div class="field"><label id="startLabel">تاریخ شروع (شمسی)</label><input id="start" type="hidden"><div style="display:grid;grid-template-columns:1fr 1.6fr 1fr;gap:6px"><select id="sy" aria-label="سال"></select><select id="sm" aria-label="ماه"></select><select id="sd" aria-label="روز"></select></div></div>
+    <div class="field"><label>تعداد اقساط پرداخت‌شده</label><input id="paid" type="number" min="0" value="0"></div>
+    <div class="field" id="feeField"><label>کارمزد سالانه (%)</label><input id="fee" type="number" step="0.01" value="4"></div>
+    
+    <div class="field" id="actualField"><label>مبلغ قسط واقعی (اختیاری)</label><input id="actualPayment" type="number" min="0" placeholder="اگر بانک قسط را اعلام کرده، وارد کنید"></div>
+   </div>
+   <div class="hint">وام عادی: اگر «مبلغ قسط واقعی» را وارد کنید همان در برنامه استفاده می‌شود، وگرنه اقساط مساوی محاسبه می‌شود. قرض‌الحسنه: «مبلغ قسط واقعی» همان قسط ماهانه بدون کارمزد است؛ اولین قسط هر سال فقط کارمزد (روی مانده وام) است.</div>
+   <div class="form-actions"><button class="btn primary" type="submit">ذخیره وام</button><button class="btn gray" type="button" onclick="closeLoan()">انصراف</button></div>
+  </form>
+ </div>
+</div>
+
+<script>
+const KEY="loan_manager_v2";
+let loans=JSON.parse(localStorage.getItem(KEY)||"[]");
+loans.forEach(l=>{if(l.type==="child")l.type="qard"}); // نوع حذف‌شده → قرض‌الحسنه
+const faNums=s=>String(s).replace(/\d/g,d=>"۰۱۲۳۴۵۶۷۸۹"[d]);
+const money=n=>new Intl.NumberFormat("fa-IR").format(Math.round(n||0))+" تومان";
+const num=n=>new Intl.NumberFormat("fa-IR").format(Math.round(n||0));
+const isoToday=()=>new Date().toISOString().slice(0,10);
+
+function save(){localStorage.setItem(KEY,JSON.stringify(loans));renderAll()}
+function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2,7)}
+function pmt(P,annual,n){if(!P||!n)return 0; let r=annual/1200; return r?P*r*Math.pow(1+r,n)/(Math.pow(1+r,n)-1):P/n}
+// ===== تقویم شمسی =====
+const JMONTHS=["فروردین","اردیبهشت","خرداد","تیر","مرداد","شهریور","مهر","آبان","آذر","دی","بهمن","اسفند"];
+function toJalali(gy,gm,gd){
+  const gdm=[0,31,59,90,120,151,181,212,243,273,304,334];
+  const gy2=gm>2?gy+1:gy;
+  let days=355666+365*gy+Math.floor((gy2+3)/4)-Math.floor((gy2+99)/100)+Math.floor((gy2+399)/400)+gd+gdm[gm-1];
+  let jy=-1595+33*Math.floor(days/12053); days%=12053;
+  jy+=4*Math.floor(days/1461); days%=1461;
+  if(days>365){jy+=Math.floor((days-1)/365); days=(days-1)%365}
+  let jm,jd;
+  if(days<186){jm=1+Math.floor(days/31); jd=1+days%31}else{jm=7+Math.floor((days-186)/30); jd=1+(days-186)%30}
+  return [jy,jm,jd];
+}
+function toGregorian(jy,jm,jd){
+  jy+=1595;
+  let days=-355668+365*jy+Math.floor(jy/33)*8+Math.floor(((jy%33)+3)/4)+jd+(jm<7?(jm-1)*31:((jm-7)*30)+186);
+  let gy=400*Math.floor(days/146097); days%=146097;
+  if(days>36524){gy+=100*Math.floor(--days/36524); days%=36524; if(days>=365)days++}
+  gy+=4*Math.floor(days/1461); days%=1461;
+  if(days>365){gy+=Math.floor((days-1)/365); days=(days-1)%365}
+  let gd=days+1;
+  const sa=[0,31,((gy%4===0&&gy%100!==0)||gy%400===0)?29:28,31,30,31,30,31,31,30,31,30,31];
+  let gm; for(gm=0;gm<13&&gd>sa[gm];gm++)gd-=sa[gm];
+  return [gy,gm,gd];
+}
+function jLeap(jy){const [gy,gm,gd]=toGregorian(jy,12,30);const b=toJalali(gy,gm,gd);return b[0]===jy&&b[1]===12&&b[2]===30}
+function jMonthLen(jy,jm){return jm<=6?31:jm<=11?30:(jLeap(jy)?30:29)}
+function jDateFromISO(s){const [y,m,d]=s.split("-").map(Number);return toJalali(y,m,d)}
+function jToDate(jy,jm,jd){const [gy,gm,gd]=toGregorian(jy,jm,jd);return new Date(gy,gm-1,gd,12)}
+// افزودن ماه شمسی (در صورت نبودن روز در ماه مقصد، آخرین روز ماه)
+function addMonths(s,n){
+  let [jy,jm,jd]=jDateFromISO(s);
+  const t=jm-1+n; jy+=Math.floor(t/12); jm=((t%12)+12)%12+1;
+  return jToDate(jy,jm,Math.min(jd,jMonthLen(jy,jm)));
+}
+function fmtDate(d){
+  const [jy,jm,jd]=toJalali(d.getFullYear(),d.getMonth()+1,d.getDate());
+  return faNums(jy+"/"+String(jm).padStart(2,"0")+"/"+String(jd).padStart(2,"0"));
+}
+// انتخابگر تاریخ شمسی (مقدار ذخیره‌شده در فیلد مخفی start به‌صورت ISO میلادی است)
+function initJalaliPicker(){
+  const sy=document.getElementById("sy"),sm=document.getElementById("sm"),sd=document.getElementById("sd");
+  const cy=toJalali(...isoToday().split("-").map(Number))[0];
+  for(let y=cy-15;y<=cy+25;y++)sy.add(new Option(faNums(y),y));
+  JMONTHS.forEach((n,i)=>sm.add(new Option(n,i+1)));
+  for(let d=1;d<=31;d++)sd.add(new Option(faNums(d),d));
+  [sy,sm,sd].forEach(el=>el.addEventListener("change",syncStart));
+}
+function syncStart(){
+  const sy=document.getElementById("sy"),sm=document.getElementById("sm"),sd=document.getElementById("sd");
+  const len=jMonthLen(+sy.value,+sm.value);
+  if(+sd.value>len)sd.value=len;
+  const [gy,gm,gd]=toGregorian(+sy.value,+sm.value,+sd.value);
+  document.getElementById("start").value=gy+"-"+String(gm).padStart(2,"0")+"-"+String(gd).padStart(2,"0");
+}
+function setStartISO(iso){
+  const [jy,jm,jd]=jDateFromISO(iso);
+  const sy=document.getElementById("sy");
+  if(![...sy.options].some(o=>+o.value===jy)){sy.add(new Option(faNums(jy),jy));[...sy.options].sort((a,b)=>a.value-b.value).forEach(o=>sy.add(o))}
+  sy.value=jy;document.getElementById("sm").value=jm;document.getElementById("sd").value=jd;
+  document.getElementById("start").value=iso;
+}
+initJalaliPicker();setStartISO(isoToday());
+const jOf=d=>toJalali(d.getFullYear(),d.getMonth()+1,d.getDate());
+const jkey=d=>{const [y,m]=jOf(d);return y*12+m-1};
+const TYPES={ordinary:["عادی","blue"],qard:["قرض‌الحسنه","green"]};
+function calcLoan(l){
+  const P=+l.principal||0,n=+l.term||0,paid=Math.min(+l.paid||0,n);
+  let payment=l.actualPayment>0?+l.actualPayment:pmt(P,+l.rate||0,n);
+  let rows=[],bal=P,qardRegular=0;
+  if(l.type==="qard"){
+    const feeMonths=[];for(let i=1;i<=n;i++) if(i===1||i%12===1) feeMonths.push(i);
+    const pi=l.actualPayment>0?+l.actualPayment:P/Math.max(1,n-feeMonths.length);
+    qardRegular=pi;
+    for(let i=1;i<=n;i++){
+      const isFee=feeMonths.includes(i), fee=isFee?bal*(+l.fee||0)/100:0;
+      let principal=isFee?0:Math.min(bal,pi); if(i===n)principal=bal;
+      bal=Math.max(0,bal-principal);
+      rows.push({i,date:addMonths(l.start,i),payment:principal+fee,principal,interest:fee,balance:bal,paid:i<=paid});
+    }
+   } else {
+    const r=(+l.rate||0)/1200;
+    for(let i=1;i<=n;i++){
+      const interest=bal*r, principal=Math.min(bal,Math.max(0,payment-interest));
+      const pay=i===n?principal+interest:payment;
+      bal=Math.max(0,bal-principal);
+      rows.push({i,date:addMonths(l.start,i),payment:pay,principal,interest,balance:bal,paid:i<=paid});
+    }
+  }
+  const t0=new Date();const today=new Date(t0.getFullYear(),t0.getMonth(),t0.getDate());
+  rows.forEach(x=>{if(x.date<today)x.paid=true}); // قسط‌های گذشته پرداخت‌شده محسوب می‌شوند
+  const paidN=rows.filter(x=>x.paid).length;
+  let rest=rows.reduce((a,x)=>a+x.payment,0);
+  rows.forEach(x=>{rest-=x.payment;x.rest=Math.max(0,rest)});
+  const future=rows.filter(x=>!x.paid), current=rows[paidN-1]||null;
+  const nextPayment=future.length?future[0].payment:0;
+  return {rows,paid:paidN,balance:current?current.balance:P,future,futurePayments:future.reduce((a,x)=>a+x.payment,0),
+    payment:l.type==="qard"?qardRegular:payment,nextPayment};
+}
+function totalStats(){
+  const cs=loans.map(calcLoan);
+  return {initial:loans.reduce((a,l)=>a+(+l.principal||0),0),future:cs.reduce((a,c)=>a+c.futurePayments,0),active:cs.filter(c=>c.future.length).length,cs};
+}
+function statCard(label,value,sub=""){return `<div class="card stat"><div class="label">${label}</div><div class="value">${value}</div><div class="sub">${sub}</div></div>`}
+const COLORS=["#2563eb","#059669","#d97706","#dc2626","#7c3aed","#0891b2","#db2777","#65a30d"];
+function pieHover(cv){
+ if(cv._h)return;cv._h=1;
+ cv.addEventListener("mousemove",e=>{const r=cv.getBoundingClientRect(),x=e.clientX-r.left-110,y=e.clientY-r.top-110,d=Math.hypot(x,y),it=cv._items||[];
+  if(d>100||!it.length){hideTip();return}
+  const a=(Math.atan2(y,x)+Math.PI/2+2*Math.PI)%(2*Math.PI);let acc=0,tot=it.reduce((p,q)=>p+q.value,0);
+  for(const q of it){acc+=q.value/tot*2*Math.PI;if(a<=acc){showTip(e,[q.label,money(q.value),faNums((q.value/tot*100).toFixed(1))+"٪ از کل"].join("|"));return}}});
+ cv.addEventListener("mouseleave",hideTip);
+}
+function drawPie(cvId,lgId,items){
+ const cv=document.getElementById(cvId),lg=document.getElementById(lgId),dpr=devicePixelRatio||1;
+ items=items.filter(x=>x.value>0).sort((a,b)=>b.value-a.value);cv._items=items;pieHover(cv);
+ cv.width=220*dpr;cv.height=220*dpr;const ctx=cv.getContext("2d");ctx.scale(dpr,dpr);ctx.clearRect(0,0,220,220);
+ const tot=items.reduce((a,x)=>a+x.value,0);
+ if(!tot){lg.innerHTML='<div class="note">اطلاعاتی برای نمایش وجود ندارد.</div>';return}
+ let a0=-Math.PI/2;
+ items.forEach((x,i)=>{const a1=a0+x.value/tot*2*Math.PI;ctx.beginPath();ctx.moveTo(110,110);ctx.arc(110,110,100,a0,a1);ctx.closePath();ctx.fillStyle=COLORS[i%COLORS.length];ctx.fill();ctx.strokeStyle="#fff";ctx.lineWidth=2;ctx.stroke();a0=a1});
+ lg.innerHTML=items.map((x,i)=>`<div style="display:flex;align-items:center;gap:8px;margin:7px 0;font-size:12px"><i style="width:12px;height:12px;border-radius:3px;background:${COLORS[i%COLORS.length]}"></i><span style="flex:1">${esc(x.label)}</span><b>${money(x.value)}</b><span class="note">(${faNums((x.value/tot*100).toFixed(1))}٪)</span></div>`).join("");
+}
+const tip=document.getElementById("tip");
+function showTip(e,h){tip.innerHTML=h.split("|").map(esc).join("<br>");tip.style.display="block";const w=tip.offsetWidth;tip.style.left=Math.max(8,Math.min(innerWidth-w-8,e.clientX+12))+"px";tip.style.top=(e.clientY+14)+"px"}
+function hideTip(){tip.style.display="none"}
+document.addEventListener("mousemove",e=>{const t=e.target.closest&&e.target.closest("[data-tip]");if(t)showTip(e,t.dataset.tip);else if(e.target.tagName!=="CANVAS")hideTip()});
+function renderDashboard(){
+ const s=totalStats();
+ document.getElementById("stats").innerHTML=statCard("تعداد وام فعال",num(s.active),"وام دارای قسط باقی‌مانده")+statCard("مجموع وام دریافتی",money(s.initial),"تمام وام‌های ثبت‌شده")+statCard("جمع اقساط باقی‌مانده",money(s.future),"اگر طبق برنامه ادامه دهید");
+ const L=loans.map((l,i)=>({l,c:s.cs[i]}));
+ drawPie("pie1","leg1",L.map(x=>({label:x.l.name,value:x.c.futurePayments})));
+ const act=L.filter(x=>x.c.future.length);
+ drawPie("pie2","leg2",act.map(x=>({label:x.l.name,value:x.c.nextPayment})));
+
+ const cd=document.getElementById("cmpDate"),ce=document.getElementById("cmpEnd");
+ if(!loans.length){cd.innerHTML=ce.innerHTML='<div class="empty">هنوز وامی ثبت نشده است.</div>';drawTrend([]);return}
+ const now=Date.now(),MS=30.44*864e5,mo=v=>faNums(Math.abs(Math.round(v)));
+ const bd=L.map(x=>({x,d:new Date(x.l.start+"T12:00:00")})).sort((a,b)=>a.d-b.d),ma=Math.max(...bd.map(o=>(now-o.d)/MS),1);
+
+ cd.innerHTML='<div class="tline">'+bd.map((o,i)=>{const gap=i?(o.d-bd[i-1].d)/MS:0;return `<div class="titem" style="--c:#7c3aed" data-tip="${esc([o.x.l.name,"تاریخ اخذ: "+fmtDate(o.d),"مبلغ کل وام: "+money(o.x.l.principal)].join("|"))}"><b>${esc(o.x.l.name)}</b> <span class="note">${fmtDate(o.d)}</span><div class="note">${i?mo(gap)+" ماه بعد از «"+esc(bd[i-1].x.l.name)+"»":"قدیمی‌ترین وام"}</div></div>`}).join("")+'</div>';
+ const be=L.map(x=>({x,e:x.c.rows.at(-1).date})).sort((a,b)=>a.e-b.e);
+ ce.innerHTML='<div class="tline">'+be.map(o=>{const rem=(o.e-now)/MS;return `<div class="titem" style="--c:${rem>0?"#d97706":"#98a2b3"}" data-tip="${esc([o.x.l.name,"آخرین قسط: "+fmtDate(o.e),rem>0?mo(rem)+" ماه تا پایان اقساط":"اقساط تمام شده",num(o.x.c.future.length)+" قسط مانده","باقی‌مانده: "+money(o.x.c.futurePayments)].join("|"))}"><b>${esc(o.x.l.name)}</b> <span class="note">${fmtDate(o.e)}</span><div class="note">${rem>0?mo(rem)+" ماه تا پایان اقساط":"اقساط تمام شده"}</div></div>`}).join("")+'</div>';
+ drawTrend(monthlyData());
+}
+function drawTrend(data){
+ const cv=document.getElementById("trendChart"),r=cv.getBoundingClientRect(),dpr=devicePixelRatio||1,W=r.width,H=r.height;
+ cv.width=W*dpr;cv.height=H*dpr;const ctx=cv.getContext("2d");ctx.scale(dpr,dpr);ctx.clearRect(0,0,W,H);ctx.font="10px Tahoma";ctx.fillStyle="#667085";cv._pts=[];
+ if(!cv._h){cv._h=1;
+  cv.addEventListener("mousemove",e=>{const b=cv.getBoundingClientRect(),x=e.clientX-b.left,y=e.clientY-b.top;let best=null,bd=14;
+   (cv._pts||[]).forEach(p=>{const d=Math.hypot(p.x-x,p.y-y);if(d<bd){bd=d;best=p}});
+   if(best)showTip(e,monthLabel(best.d.date)+"|مجموع اقساط: "+money(best.d.total));else hideTip()});
+  cv.addEventListener("mouseleave",hideTip)}
+ if(!data.length){ctx.fillText("اطلاعاتی برای نمودار وجود ندارد.",20,30);return}
+ const p={l:62,r:12,t:12,b:24},cw=W-p.l-p.r,ch=H-p.t-p.b,mx=Math.max(...data.map(x=>x.total),1),st=data.length>1?cw/(data.length-1):0;
+ ctx.strokeStyle="#e5e7eb";ctx.lineWidth=1;
+ for(let i=0;i<=2;i++){const y=p.t+ch*i/2;ctx.beginPath();ctx.moveTo(p.l,y);ctx.lineTo(W-p.r,y);ctx.stroke();ctx.textAlign="left";ctx.fillText(num(mx*(1-i/2)),4,y+3)}
+ const pts=data.map((d,i)=>({x:W-p.r-i*st,y:p.t+ch-d.total/mx*ch,d}));
+ ctx.beginPath();pts.forEach((q,i)=>i?ctx.lineTo(q.x,q.y):ctx.moveTo(q.x,q.y));ctx.strokeStyle="#bfdbfe";ctx.lineWidth=1.5;ctx.stroke();
+ ctx.fillStyle="#2563eb";pts.forEach(q=>{ctx.beginPath();ctx.arc(q.x,q.y,3,0,7);ctx.fill()});
+ ctx.fillStyle="#475467";ctx.textAlign="right";ctx.fillText(monthLabel(data[0].date),W-p.r,H-6);
+ if(data.length>1){ctx.textAlign="left";ctx.fillText(monthLabel(data.at(-1).date),p.l,H-6)}
+ cv._pts=pts;
+}
+function renderLoans(){
+ const box=document.getElementById("loanList"),s=totalStats();
+ if(!loans.length){box.innerHTML='<div class="card empty">وامی ثبت نشده است.</div>';return}
+ box.innerHTML=loans.map((l,i)=>({l,c:s.cs[i]})).sort((a,b)=>b.l.start.localeCompare(a.l.start)).map(({l,c})=>{const t=TYPES[l.type]||TYPES.ordinary,pct=Math.min(100,c.paid/l.term*100);
+ return `<div class="loan-card">
+  <div style="display:flex;justify-content:space-between;gap:8px"><div><h3>${esc(l.name)}</h3><span class="badge ${t[1]}">${t[0]}</span> <span class="note">${esc(l.bank||"")}${l.account?" · "+esc(l.account):""}</span><div class="note">تاریخ وام: ${fmtDate(new Date(l.start+"T12:00:00"))}</div></div><div><button class="btn gray" onclick="editLoan('${l.id}')">ویرایش</button> <button class="btn red" onclick="deleteLoan('${l.id}')">حذف</button></div></div>
+  <div class="loan-meta">
+   <div class="mini"><span>مبلغ کل وام</span><b>${money(l.principal)}</b></div>
+   <div class="mini"><span>جمع اقساط باقی‌مانده</span><b>${money(c.futurePayments)}</b></div>
+   <div class="mini"><span>قسط ماهانه</span><b>${money(c.payment)}</b></div>
+   ${c.future.length?`<div class="mini"><span>قسط بعدی</span><b>${money(c.nextPayment)}</b></div>`:""}
+   <div class="mini"><span>${l.type==="ordinary"?"نرخ سود":"کارمزد"}</span><b>${faNums(l.type==="ordinary"?l.rate:l.fee)}٪</b></div>
+   <div class="mini"><span>مدت</span><b>${num(l.term)} ماه</b></div>
+   <div class="mini"><span>اقساط پرداخت‌شده / باقی‌مانده</span><b>${num(c.paid)} / ${num(c.future.length)}</b></div>
+   <div class="mini"><span>درصد از کل بدهی</span><b>${faNums((s.future?c.futurePayments/s.future*100:0).toFixed(1))}٪</b></div>
+  </div>
+  <div style="font-size:10px;color:#667085;margin-bottom:6px">پیشرفت بازپرداخت: ${num(c.paid)} از ${num(l.term)}</div>
+  <div class="progress"><i style="width:${pct}%"></i></div></div>`}).join("");
+}
+function renderScheduleSelect(){
+ const sel=document.getElementById("scheduleLoan"),old=sel.value;
+ sel.innerHTML=loans.map(l=>`<option value="${l.id}">${esc(l.name)}</option>`).join("");
+ if(old&&loans.some(l=>l.id===old))sel.value=old;
+ renderSchedule();
+}
+function renderSchedule(){
+ const id=document.getElementById("scheduleLoan").value,l=loans.find(x=>x.id===id);
+ if(!l){document.getElementById("scheduleSummary").innerHTML='<div class="empty">وامی برای نمایش وجود ندارد.</div>';document.getElementById("scheduleTable").innerHTML="";return}
+ const c=calcLoan(l);
+ document.getElementById("scheduleSummary").innerHTML=`<div class="kpi-row"><div class="kpi"><span>قسط ماهانه</span><b>${money(c.payment)}</b></div>${c.future.length?`<div class="kpi"><span>قسط بعدی</span><b>${money(c.nextPayment)}</b></div>`:""}</div>`;
+ document.getElementById("scheduleTable").innerHTML=c.rows.map(x=>`<tr><td>${num(x.i)}</td><td>${fmtDate(x.date)}</td><td>${money(x.payment)}</td><td>${money(x.principal)}</td><td>${money(x.interest)}</td><td>${money(x.rest)}</td><td><span class="badge ${x.paid?"green":"orange"}">${x.paid?"پرداخت‌شده":"باقی‌مانده"}</span></td></tr>`).join("");
+}
+function settlementRows(){
+ const tb=document.getElementById("settlementTable"),s=totalStats(),ch=document.getElementById("settleChart");
+ const act=loans.map((l,i)=>({l,c:s.cs[i]})).filter(x=>x.c.future.length&&x.c.futurePayments>0);
+ const cur=act.reduce((a,x)=>a+x.c.nextPayment,0);
+ document.getElementById("settleSummary").innerHTML=`<div class="kpi"><span>جمع قسط ماهانه فعلی (قسط بعدی وام‌های فعال)</span><b>${money(cur)}</b></div><div class="kpi"><span>جمع اقساط باقی‌مانده</span><b>${money(s.future)}</b></div>`;
+ if(!act.length){tb.innerHTML='<tr><td colspan="8" class="empty">وام فعالی وجود ندارد.</td></tr>';ch.innerHTML='<div class="empty">وام فعالی وجود ندارد.</div>';return}
+ act.forEach(x=>x.eff=x.c.nextPayment/x.c.futurePayments*1e6);
+ act.sort((a,b)=>b.eff-a.eff);const me=act[0].eff||1;
+ ch.innerHTML=act.map(x=>`<div class="hrow" data-tip="${esc([x.l.name,"مبلغ تسویه: "+money(x.c.futurePayments),"قسط حذف‌شده: "+money(x.c.nextPayment),"کاهش "+faNums((cur?x.c.nextPayment/cur*100:0).toFixed(1))+"٪ فشار ماهانه"].join("|"))}"><span class="lb">${esc(x.l.name)}</span><div class="tr"><i style="width:${x.eff/me*100}%;background:#059669"></i></div><span class="vl" style="width:110px">${money(x.eff)}</span></div>`).join("");
+ tb.innerHTML=act.map((x,i)=>`<tr><td>${i===0?'<span class="badge green">بهترین</span>':num(i+1)}</td><td><b>${esc(x.l.name)}</b></td><td>${esc(x.l.bank||"—")}</td><td>${money(x.c.futurePayments)}</td><td class="positive"><b>${money(x.c.nextPayment)}</b></td><td class="positive">${faNums((cur?x.c.nextPayment/cur*100:0).toFixed(1))}٪</td><td>${num(x.c.future.length)} قسط</td><td><b>${money(x.eff)}</b></td></tr>`).join("");
+}
+function monthLabel(d){const [jy,jm]=jOf(d);return JMONTHS[jm-1]+" "+faNums(jy)}
+let selMonth=0;
+function allRows(){return loans.flatMap(l=>calcLoan(l).rows.map(r=>({...r,l,loanName:l.name,bank:l.bank||"—",account:l.account||"—"})))}
+// همه اقساط هر ماه (پرداخت‌شده و نشده) از ماه جاری به بعد
+function monthlyData(){
+ const [ty,tm]=toJalali(...isoToday().split("-").map(Number)),minKey=ty*12+tm-1;
+ const all=allRows().filter(x=>jkey(x.date)>=minKey);
+ if(!all.length)return [];
+ const key=x=>jkey(x.date),maxKey=Math.max(...all.map(key));
+ return Array.from({length:Math.min(120,maxKey-minKey+1)},(_,idx)=>{
+  const k=minKey+idx,rows=all.filter(x=>key(x)===k);
+  return {date:jToDate(Math.floor(k/12),k%12+1,1),items:rows.slice().sort((a,b)=>a.date-b.date),total:rows.reduce((a,x)=>a+x.payment,0),active:new Set(rows.map(x=>x.l.id)).size};
+ });
+}
+function renderAnalysis(){
+ const data=monthlyData(),max=data.reduce((a,x)=>Math.max(a,x.total),0),sum=data.reduce((a,x)=>a+x.total,0);
+ if(selMonth>=data.length)selMonth=0;
+ document.getElementById("analysisStats").innerHTML=statCard("بیشترین قسط ماهانه",money(max),"در کل دوره")+statCard("جمع اقساط باقی‌مانده",money(totalStats().future),"برابر با داشبورد")+statCard("تعداد ماه‌های برنامه",num(data.length),"تا پایان برنامه");
+ document.getElementById("analysisTable").innerHTML=data.map(x=>{
+  const level=x.total>=max*.8?"سنگین":x.total>=max*.5?"متوسط":"سبک";
+  return `<tr><td><b>${monthLabel(x.date)}</b></td><td>${x.items.map(r=>{const j=jOf(r.date);return `<div style="font-size:12px">${esc(r.loanName)} <span class="note">(${faNums(j[2])} ${JMONTHS[j[1]-1]})</span>: <b>${money(r.payment)}</b>${r.paid?" ✓":""}</div>`}).join("")}</td><td><b>${money(x.total)}</b></td><td>${num(x.active)}</td><td><span class="badge ${level==="سنگین"?"red":level==="متوسط"?"orange":"green"}">${level}</span></td></tr>`}).join("");
+ drawChart("analysisChart",data.slice(0,36),selMonth);
+ const m=data[selMonth];
+ document.getElementById("monthDetail").innerHTML=m?`<b>مشخصات وام‌های ${monthLabel(m.date)}</b> <span class="note">— جمع: ${money(m.total)}</span><div class="table-wrap" style="margin-top:10px"><table><thead><tr><th>وام</th><th>بانک</th><th>حساب</th><th>نوع</th><th>سررسید</th><th>شماره قسط</th><th>مبلغ قسط</th></tr></thead><tbody>${m.items.map(r=>`<tr><td>${esc(r.loanName)}</td><td>${esc(r.bank)}</td><td>${esc(r.account)}</td><td>${(TYPES[r.l.type]||TYPES.ordinary)[0]}</td><td>${fmtDate(r.date)}${jkey(r.date)<jkey(m.date)?' <span class="badge red">معوق</span>':""}</td><td>${num(r.i)} از ${num(r.l.term)}</td><td><b>${money(r.payment)}</b>${r.paid?" ✓":""}</td></tr>`).join("")}</tbody></table></div>`:'<div class="empty">اطلاعاتی نیست.</div>';
+ const [cy,cm]=toJalali(...isoToday().split("-").map(Number)),ck=m?jkey(m.date):cy*12+cm-1,g={};
+ document.getElementById("depHead").textContent="واریزهای "+(m?monthLabel(m.date):"این ماه");
+ allRows().filter(x=>jkey(x.date)===ck).forEach(x=>{const k=x.bank+"|"+x.account;g[k]=g[k]||{bank:x.bank,account:x.account,t:0,p:0};g[k].t+=x.payment;if(x.paid)g[k].p+=x.payment});
+ const gs=Object.values(g),tot=gs.reduce((a,x)=>a+x.t,0),totp=gs.reduce((a,x)=>a+x.p,0);
+ document.getElementById("depositTable").innerHTML=gs.length?gs.map(x=>`<tr><td>${esc(x.bank)}</td><td>${esc(x.account)}</td><td>${money(x.t)}</td><td>${money(x.p)}</td><td><b>${money(x.t-x.p)}</b></td></tr>`).join("")+`<tr><td colspan="2"><b>جمع کل</b></td><td><b>${money(tot)}</b></td><td><b>${money(totp)}</b></td><td><b>${money(tot-totp)}</b></td></tr>`:'<tr><td colspan="5" class="empty">در این ماه قسطی سررسید نمی‌شود.</td></tr>';
+}
+function drawChart(id,data,sel){
+ const canvas=document.getElementById(id);if(!canvas)return;
+ const rect=canvas.getBoundingClientRect(),dpr=devicePixelRatio||1;canvas.width=rect.width*dpr;canvas.height=rect.height*dpr;
+ const ctx=canvas.getContext("2d");ctx.scale(dpr,dpr);const W=rect.width,H=rect.height;
+ ctx.clearRect(0,0,W,H);ctx.font="11px Tahoma";ctx.fillStyle="#667085";canvas._bars=[];
+ if(!data.length){ctx.fillText("اطلاعات کافی برای نمودار وجود ندارد.",20,30);return}
+ const pad={l:70,r:20,t:20,b:45},cw=W-pad.l-pad.r,ch=H-pad.t-pad.b,max=Math.max(...data.map(x=>x.total),1);
+ ctx.strokeStyle="#e5e7eb";ctx.lineWidth=1;
+ for(let i=0;i<=5;i++){const y=pad.t+ch*i/5;ctx.beginPath();ctx.moveTo(pad.l,y);ctx.lineTo(W-pad.r,y);ctx.stroke();ctx.fillText(num(max*(1-i/5)),5,y+4)}
+ const step=cw/data.length,bw=Math.max(5,step*.62);
+ data.forEach((x,i)=>{const h=x.total/max*ch,x0=pad.l+i*step+(step-bw)/2,y=pad.t+ch-h;
+  ctx.fillStyle=i===sel?"#1e3a8a":"#2563eb";ctx.fillRect(x0,y,bw,h);canvas._bars.push([pad.l+i*step,pad.l+(i+1)*step]);
+  if(i%Math.ceil(data.length/8)===0){ctx.fillStyle="#475467";ctx.fillText(fmtDate(x.date).slice(0,7),x0,H-15)}});
+}
+document.getElementById("analysisChart").addEventListener("click",e=>{
+ const cv=e.target,x=e.clientX-cv.getBoundingClientRect().left,i=(cv._bars||[]).findIndex(b=>x>=b[0]&&x<b[1]);
+ if(i>=0){selMonth=i;renderAnalysis()}
+});
+function openLoan(){
+ document.getElementById("loanForm").reset();document.getElementById("editId").value="";
+ setStartISO(isoToday());document.getElementById("rate").value=23;document.getElementById("fee").value=4;document.getElementById("term").value=36;document.getElementById("paid").value=0;
+ document.getElementById("modalTitle").textContent="افزودن وام";syncLoanTypeFields();document.getElementById("modal").classList.add("show");
+}
+function editLoan(id){
+ const l=loans.find(x=>x.id===id);if(!l)return;
+ for(const [k,v] of Object.entries({editId:l.id,name:l.name,type:l.type,principal:l.principal,rate:l.rate,term:l.term,start:l.start,paid:l.paid,fee:l.fee,bank:l.bank||"",account:l.account||"",actualPayment:l.actualPayment||""})){document.getElementById(k).value=v}
+ setStartISO(l.start);
+ document.getElementById("modalTitle").textContent="ویرایش وام";syncLoanTypeFields();document.getElementById("modal").classList.add("show");
+}
+function closeLoan(){document.getElementById("modal").classList.remove("show")}
+function syncLoanTypeFields(){
+ const q=document.getElementById("type").value==="qard",sh=(id,v)=>document.getElementById(id).style.display=v?"block":"none";
+ sh("rateField",!q);sh("feeField",q);
+ if(q)document.getElementById("rate").value=0;
+}
+document.getElementById("type").addEventListener("change",syncLoanTypeFields);
+document.getElementById("loanForm").addEventListener("submit",e=>{
+ e.preventDefault();const id=document.getElementById("editId").value;
+ const obj={id:id||uid(),name:document.getElementById("name").value.trim(),type:document.getElementById("type").value,principal:+document.getElementById("principal").value,rate:+document.getElementById("rate").value||0,term:+document.getElementById("term").value,start:document.getElementById("start").value,paid:+document.getElementById("paid").value||0,fee:+document.getElementById("fee").value||0,bank:document.getElementById("bank").value.trim(),account:document.getElementById("account").value.trim(),actualPayment:+document.getElementById("actualPayment").value||0};
+ if(id){loans=loans.map(x=>x.id===id?obj:x)}else loans.push(obj);save();closeLoan();
+});
+function deleteLoan(id){if(confirm("این وام حذف شود؟")){loans=loans.filter(x=>x.id!==id);save()}}
+function exportData(){const blob=new Blob([JSON.stringify(loans,null,2)],{type:"application/json"});const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="backup-vam.json";a.click();URL.revokeObjectURL(a.href)}
+function importData(e){const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{try{const x=JSON.parse(r.result);if(!Array.isArray(x))throw 0;loans=x;save();alert("اطلاعات بازیابی شد.")}catch{alert("فایل پشتیبان معتبر نیست.")}};r.readAsText(f)}
+function esc(s){return String(s||"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m]))}
+function renderAll(){renderDashboard();renderLoans();renderScheduleSelect();settlementRows();renderAnalysis()}
+document.querySelectorAll("#nav button").forEach(b=>b.addEventListener("click",()=>{document.querySelectorAll("#nav button").forEach(x=>x.classList.remove("active"));document.querySelectorAll(".page").forEach(x=>x.classList.remove("active"));b.classList.add("active");document.getElementById(b.dataset.page).classList.add("active");renderAll()}));
+window.addEventListener("resize",()=>renderAll());
+renderAll();
+</script>
+</body>
+</html>
